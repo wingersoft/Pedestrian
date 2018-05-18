@@ -1,0 +1,27 @@
+[*]
+[*] GTKWave Analyzer v3.3.62 (w)1999-2014 BSI
+[*] Fri May 18 08:56:37 2018
+[*]
+[dumpfile] "/home/pi/src/verilog/pedestrian/pedestrian_tb.vcd"
+[dumpfile_mtime] "Fri May 18 08:56:16 2018"
+[dumpfile_size] 4694
+[savefile] "/home/pi/src/verilog/pedestrian/pedestrian_tb.gtkw"
+[timestart] 0
+[size] 1920 1018
+[pos] -9 -30
+*-7.741619 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] pedestrian_tb.
+[sst_width] 43
+[signals_width] 142
+[sst_expanded] 0
+[sst_vpaned_height] 301
+@28
+pedestrian_tb.dut.pin3_clk_16mhz
+pedestrian_tb.dut.pin4_green
+pedestrian_tb.dut.pin5_yellow
+pedestrian_tb.dut.pin6_red
+pedestrian_tb.dut.pin7_ped_green
+@29
+pedestrian_tb.dut.pin8_ped_red
+[pattern_trace] 1
+[pattern_trace] 0

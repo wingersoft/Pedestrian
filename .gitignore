@@ -1,0 +1,8 @@
+.sconsign.dblite
+*.log
+*.vcd
+*.blif
+*.bin
+*.asc
+pedestrian
+
