@@ -1,6 +1,6 @@
 `timescale  10ns/1ns
 
-// hg 15-may-2018 - 13:000:45
+// hg 18-may-2018 - 12:45
 module pedestrian_tb;
   
 initial begin
@@ -10,9 +10,11 @@ initial begin
     #180 $finish;
 end
 
+// Clock generation
 reg clk = 0;
 always #1 clk = !clk;
 
+// Output for simulation
 wire green;
 wire yellow;
 wire red;
@@ -34,3 +36,4 @@ pedestrian #(.TIMER_SCALE(1)) dut (
     ); 
 
 endmodule
+

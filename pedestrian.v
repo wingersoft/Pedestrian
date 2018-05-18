@@ -19,12 +19,12 @@ module pedestrian
     // state machine states
     //
     localparam STATE_SIZE = 3;
-    localparam IDLE     = 3'd0,
-               GREEN    = 3'd1,
-               YELLOW   = 3'd2,
-               RED      = 3'd3,
-               PEDGREEN = 3'd4,
-               PEDRED   = 3'd5;
+    localparam IDLE       = 3'd0,
+               GREEN      = 3'd1,
+               YELLOW     = 3'd2,
+               RED        = 3'd3,
+               PEDGREEN   = 3'd4,
+               PEDRED     = 3'd5;
      
     //
     // define registers
@@ -130,3 +130,4 @@ module pedestrian
     end
      
 endmodule
+
