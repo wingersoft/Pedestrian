@@ -1,6 +1,10 @@
 `timescale  10ns/1ns
+`default_nettype none
 
-// hg 18-may-2018 - 12:45
+//
+// hg 18-may-2018 - 19:00
+//
+
 module pedestrian_tb;
   
 initial begin
@@ -14,7 +18,7 @@ end
 reg clk = 0;
 always #1 clk = !clk;
 
-// Output for simulation
+// Outputs for simulation
 wire green;
 wire yellow;
 wire red;

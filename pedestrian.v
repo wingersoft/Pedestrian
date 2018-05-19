@@ -2,7 +2,7 @@
 `default_nettype none
 
 //
-// Traffic Light controller demo 18-may-2018 - 10:45
+// Traffic Light controller demo 18-may-2018 - 19:00
 //
 module pedestrian 
 #(parameter TIMER_SCALE = 16000000)
@@ -13,7 +13,7 @@ module pedestrian
     output pin6_red,
     output pin7_ped_green,
     output pin8_ped_red
-    );
+);
     
     //
     // state machine states
@@ -32,9 +32,11 @@ module pedestrian
     reg [STATE_SIZE - 1:0] state_d, state_q = 0;
     // timer max 60 seconds
     reg [29:0] timer_d, timer_q = 0;
-    reg red_d, red_q = 0;
+    // lights green, yellow, red
+    reg green_d, green_q = 0;
     reg yellow_d, yellow_q = 0;      
-    reg green_d, green_q  = 0;
+    reg red_d, red_q  = 0;
+    // lights pedestrian green and red
     reg ped_green_d, ped_green_q = 0;
     reg ped_red_d, ped_red_q = 0;
     
@@ -94,7 +96,7 @@ module pedestrian
                     state_d = PEDGREEN;
                 end
             end
-            // Ped green light - 10 seconds
+            // Ped green light
             PEDGREEN: begin
                 ped_red_d = 1'b0;
                 ped_green_d = 1'b1;

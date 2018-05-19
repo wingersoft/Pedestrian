@@ -4,7 +4,7 @@ Verilog script controlling a traffic light with pedestrian light.
 
 ## Hardware
 
-* TinyFPGA-BX board.
+* TinyFPGA-B2 board.
 
 ## Documentation links
 
