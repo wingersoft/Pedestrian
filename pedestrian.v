@@ -127,7 +127,7 @@ module pedestrian
         road_red_q <= road_red_d;
         ped_green_q <= ped_green_d;
         ped_red_q <= ped_red_d;
-        timer_q = timer_d;
+        timer_q <= timer_d;
         state_q <= state_d;
     end
      
