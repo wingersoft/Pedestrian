@@ -2,7 +2,7 @@
 `default_nettype none
 
 //
-// Traffic Light controller demo 18-may-2018 - 19:00
+// Traffic Light controller demo 22-may-2018 - 11:30
 //
 module pedestrian 
 #(parameter TIMER_SCALE = 16000000)
@@ -20,9 +20,9 @@ module pedestrian
     //
     localparam STATE_SIZE = 3;
     localparam IDLE       = 3'd0,
-               GREEN      = 3'd1,
-               YELLOW     = 3'd2,
-               RED        = 3'd3,
+               ROADGREEN  = 3'd1,
+               ROADYELLOW = 3'd2,
+               ROADRED    = 3'd3,
                PEDGREEN   = 3'd4,
                PEDRED     = 3'd5;
      
@@ -33,9 +33,9 @@ module pedestrian
     // timer max 60 seconds
     reg [29:0] timer_d, timer_q = 0;
     // lights green, yellow, red
-    reg green_d, green_q = 0;
-    reg yellow_d, yellow_q = 0;      
-    reg red_d, red_q  = 0;
+    reg road_green_d, road_green_q = 0;
+    reg road_yellow_d, road_yellow_q = 0;      
+    reg road_red_d, road_red_q  = 0;
     // lights pedestrian green and red
     reg ped_green_d, ped_green_q = 0;
     reg ped_red_d, ped_red_q = 0;
@@ -43,9 +43,9 @@ module pedestrian
     //
     // connect outputs to d-registers
     //
-    assign pin4_green = green_q;
-    assign pin5_yellow = yellow_q;
-    assign pin6_red = red_q;
+    assign pin4_green = road_green_q;
+    assign pin5_yellow = road_yellow_q;
+    assign pin6_red = road_red_q;
     assign pin7_ped_green = ped_green_q;
     assign pin8_ped_red = ped_red_q;
 
@@ -53,9 +53,9 @@ module pedestrian
     // combinational part
     //
     always @* begin
-        red_d = red_q;
-        yellow_d = yellow_q;
-        green_d = green_q;
+        road_red_d = road_red_q;
+        road_yellow_d = road_yellow_q;
+        road_green_d = road_green_q;
         ped_green_d = ped_green_q;
         ped_red_d = ped_red_q;
         timer_d = timer_q;
@@ -67,30 +67,30 @@ module pedestrian
                 ped_red_d = 1'b1;
                 ped_green_d = 1'b0;
                 timer_d = 30'd10 * TIMER_SCALE;
-                state_d = GREEN;
+                state_d = ROADGREEN;
             end
             // Green light - 10 seconds
-            GREEN: begin
-                red_d = 1'b0;
-                green_d = 1'b1;
+            ROADGREEN: begin
+                road_red_d = 1'b0;
+                road_green_d = 1'b1;
                 if (timer_q == 30'd0) begin
                     timer_d = 30'd5 * TIMER_SCALE;
-                    state_d = YELLOW;
+                    state_d = ROADYELLOW;
                 end
             end
             // Yellow light - 5 seconds
-            YELLOW: begin
-                green_d = 1'b0;
-                yellow_d = 1'b1;
+            ROADYELLOW: begin
+                road_green_d = 1'b0;
+                road_yellow_d = 1'b1;
                 if (timer_q == 30'd0) begin
                     timer_d = 30'd5 * TIMER_SCALE;
-                    state_d = RED;
+                    state_d = ROADRED;
                 end
             end
             // Red light - 15 seconds
-            RED: begin
-                yellow_d = 1'b0;
-                red_d = 1'b1;
+            ROADRED: begin
+                road_yellow_d = 1'b0;
+                road_red_d = 1'b1;
                 if (timer_q == 30'd0) begin
                     timer_d = 30'd10 * TIMER_SCALE;
                     state_d = PEDGREEN;
@@ -111,7 +111,7 @@ module pedestrian
                 ped_red_d = 1'b1;
                 if (timer_q == 30'd0) begin
                     timer_d = 30'd10 * TIMER_SCALE;
-                    state_d = GREEN;
+                    state_d = ROADGREEN;
                 end
             end
             default: state_d = IDLE;
@@ -122,9 +122,9 @@ module pedestrian
     // sequential part
     //
     always @ (posedge pin3_clk_16mhz) begin
-        green_q <= green_d;
-        yellow_q <= yellow_d;
-        red_q <= red_d;
+        road_green_q <= road_green_d;
+        road_yellow_q <= road_yellow_d;
+        road_red_q <= road_red_d;
         ped_green_q <= ped_green_d;
         ped_red_q <= ped_red_d;
         timer_q = timer_d;
