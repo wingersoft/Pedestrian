@@ -2,7 +2,7 @@
 `default_nettype none
 
 //
-// Traffic Light controller demo 25-may-2018 - 15:30
+// Traffic Light controller demo 28-may-2018 - 10:00
 //
 module pedestrian 
 #(parameter TIMER_SCALE = 16000000)
@@ -18,16 +18,16 @@ module pedestrian
     //
     // state machine states
     //
-    localparam STATE_SIZE = 3;
     localparam IDLE       = 3'd0,
-               ROADGREEN  = 3'd1,
-               ROADYELLOW = 3'd2,
-               ROADRED    = 3'd3,
-               PEDGREEN   = 3'd4,
-               PEDRED     = 3'd5;
+               LAMPTEST   = 3'd1,
+               ROADGREEN  = 3'd2,
+               ROADYELLOW = 3'd3,
+               ROADRED    = 3'd4,
+               PEDGREEN   = 3'd5,
+               PEDRED     = 3'd6;
      
     // state register
-    reg [STATE_SIZE - 1:0] state_d, state_q = 0;
+    reg [2:0] state_d, state_q = 0;
     // timer max 60 seconds
     reg [29:0] timer_d, timer_q = 0;
     //
@@ -56,9 +56,17 @@ module pedestrian
             timer_d = timer_q - 30'b1;
         case (state_q)
             IDLE: begin
-                light_reg_d = 5'b10100;
+                light_reg_d = 5'b00000;
                 timer_d = 30'd10 * TIMER_SCALE;
-                state_d = ROADGREEN;
+                state_d = LAMPTEST;
+            end
+            // All lamps on
+            LAMPTEST: begin
+               light_reg_d = 5'b11111;
+               if (timer_q == 30'd0) begin
+                   timer_d = 30'd10 * TIMER_SCALE;
+                   state_d = ROADGREEN;
+               end
             end
             // Green light - 10 seconds
             ROADGREEN: begin
