@@ -2,34 +2,46 @@
 `default_nettype none
 
 //
-// Traffic Light controller demo 30-may-2018 - 11:50
+// Traffic Light controller demo 12-jun-2021 - 14:30
 //
+
 module pedestrian 
 #(parameter TIMER_SCALE = 16000000)
 (
-    input pin3_clk_16mhz,
-    output pin4_green,
-    output pin5_yellow,
-    output pin6_red,
-    output pin7_ped_green,
-    output pin8_ped_red
-);
-    
+    input i_pin3_clk_16mhz,
+    output o_pin4_green,
+    output o_pin5_yellow,
+    output o_pin6_red,
+    output o_pin7_ped_green,
+    output o_pin8_ped_red);
+
+    //
+    // Time duration constants
+    //
+    localparam LAMPTESTDURATION   = 30'd1,
+               ROADGREENDURATION  = 30'd10,
+               ROADYELLOWDURATION = 30'd5,
+               ROADREDDURATION    = 30'd10,
+               PEDGREENDURATION   = 30'd10,
+               PEDREDDURATION     = 30'd10,
+               PAUSE              = 30'd1;
+
     //
     // state machine states
     //
-    localparam RESET      = 3'd0,
-               LAMPTEST   = 3'd1,
-               ROADGREEN  = 3'd2,
-               ROADYELLOW = 3'd3,
-               ROADRED    = 3'd4,
-               PEDGREEN   = 3'd5,
-               PEDRED     = 3'd6;
+    localparam LAMPTEST   = 3'd0,
+               ROADGREEN  = 3'd1,
+               ROADYELLOW = 3'd2,
+               ROADRED    = 3'd3,
+               PEDGREEN   = 3'd4,
+               PEDRED     = 3'd5;
      
     // state register
-    reg [2:0] state_d, state_q = RESET;
+    reg [2:0] r_state, r_state_next = LAMPTEST;
+
     // timer max 60 seconds
-    reg [29:0] timer_d, timer_q = 0;
+    reg [29:0] r_timer = 0;
+    
     //
     // light-reg[0] = road_green
     // light-reg[1] = road_yellow
@@ -37,89 +49,97 @@ module pedestrian
     // light_reg[3] = ped_green
     // light-reg[4] = ped_red
     //
-    reg [4:0] light_reg_d, light_reg_q = 0;
-    // conect outputs to light_reg
-    assign pin4_green = light_reg_q[0];
-    assign pin5_yellow = light_reg_q[1];
-    assign pin6_red = light_reg_q[2];
-    assign pin7_ped_green = light_reg_q[3];
-    assign pin8_ped_red = light_reg_q[4];
-
+    reg [4:0] r_light;
+    
+    // connect outputs to r_light
+    assign o_pin4_green = r_light[0];
+    assign o_pin5_yellow = r_light[1];
+    assign o_pin6_red = r_light[2];
+    assign o_pin7_ped_green = r_light[3];
+    assign o_pin8_ped_red = r_light[4];
+   
     //
-    // combinational part
+    // state machine
     //
-    always @* begin
-        light_reg_d = light_reg_q;
-        timer_d = timer_q;
-        state_d = state_q;
-        if (timer_q != 30'd0)
-            timer_d = timer_q - 30'b1;
-        case (state_q)
-            RESET: begin
-                light_reg_d = 5'b00000;
-                timer_d = 30'd10 * TIMER_SCALE;
-                state_d = LAMPTEST;
-            end
-            // All lamps on
-            LAMPTEST: begin
-               light_reg_d = 5'b11111;
-               if (timer_q == 30'd0) begin
-                   timer_d = 30'd10 * TIMER_SCALE;
-                   state_d = ROADGREEN;
-               end
-            end
-            // Green light - 10 seconds
-            ROADGREEN: begin
-                light_reg_d = 5'b10001;
-                if (timer_q == 30'd0) begin
-                    timer_d = 30'd5 * TIMER_SCALE;
-                    state_d = ROADYELLOW;
-                end
-            end
-            // Yellow light - 5 seconds
-            ROADYELLOW: begin
-                light_reg_d = 5'b10010;
-                if (timer_q == 30'd0) begin
-                    timer_d = 30'd5 * TIMER_SCALE;
-                    state_d = ROADRED;
-                end
-            end
-            // Red light - 15 seconds
-            ROADRED: begin
-                light_reg_d = 5'b10100;
-                if (timer_q == 30'd0) begin
-                    timer_d = 30'd10 * TIMER_SCALE;
-                    state_d = PEDGREEN;
-                end
-            end
-            // Ped green light
-            PEDGREEN: begin
-                light_reg_d = 5'b01100;
-                if (timer_q == 30'd0) begin
-                    timer_d = 30'd5 * TIMER_SCALE;
-                    state_d = PEDRED;
-                end
-            end
-            // Ped red light
-            PEDRED: begin
-                light_reg_d = 5'b10100;
-                if (timer_q == 30'd0) begin
-                    timer_d = 30'd10 * TIMER_SCALE;
-                    state_d = ROADGREEN;
-                end
-            end
-            default: state_d = RESET;
-        endcase
+    always @ (posedge i_pin3_clk_16mhz) begin
+        r_state <= r_state_next;
     end
     
     //
-    // sequential part
+    // timer
     //
-    always @ (posedge pin3_clk_16mhz) begin
-        light_reg_q <= light_reg_d;
-        timer_q <= timer_d;
-        state_q <= state_d;
+    always @ (posedge i_pin3_clk_16mhz) begin
+        if (r_state != r_state_next)
+            r_timer <= 0;
+        else
+            r_timer <= r_timer + 30'd1;
     end
-     
-endmodule
 
+    //
+    // state machine
+    //
+    always @ (*) begin
+        r_state_next = r_state;
+        case (r_state)
+            // All lamps on
+            LAMPTEST: begin
+               if (r_timer == LAMPTESTDURATION * TIMER_SCALE)
+                   r_state_next = ROADGREEN;
+               else
+                   r_state_next = LAMPTEST;
+            end
+            // Road Green light
+            ROADGREEN: begin
+                if (r_timer == ROADGREENDURATION * TIMER_SCALE)
+                    r_state_next = ROADYELLOW;
+                else
+                    r_state_next = ROADGREEN;
+            end
+            // Road Yellow light
+            ROADYELLOW: begin
+                if (r_timer == ROADYELLOWDURATION * TIMER_SCALE)
+                    r_state_next = ROADRED;
+                else
+                    r_state_next = ROADYELLOW;
+            end
+            // Road light
+            ROADRED: begin
+                if (r_timer == (PAUSE * 5) * TIMER_SCALE)
+                    r_state_next = PEDGREEN;
+                else
+                    r_state_next = ROADRED;
+            end
+            // Ped green
+            PEDGREEN: begin
+                if (r_timer == PEDGREENDURATION * TIMER_SCALE)
+                    r_state_next = PEDRED;
+                else
+                    r_state_next = PEDGREEN;
+            end
+            // Ped red light
+            PEDRED: begin
+                if (r_timer == (PAUSE * 5) * TIMER_SCALE)
+                    r_state_next = ROADGREEN;
+                else
+                    r_state_next = PEDRED;
+            end
+            default: r_state_next = LAMPTEST;
+        endcase
+    end
+
+    //
+    // state machine output
+    //
+    always @ (*) begin
+        case (r_state)
+            LAMPTEST:   r_light = 5'b11111; // All lamps on 
+            ROADGREEN:  r_light = 5'b10001; // Road green
+            ROADYELLOW: r_light = 5'b10010; // Road yellow
+            ROADRED:    r_light = 5'b10100; // Road red
+            PEDGREEN:   r_light = 5'b01100; // Ped green
+            PEDRED:     r_light = 5'b10100; // Ped red
+            default:    r_light = 5'b00000; // default all off
+        endcase
+    end
+
+endmodule

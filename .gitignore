@@ -7,4 +7,6 @@
 *.out
 *.rpt
 pedestrian
-
+Ped
+.sconsign.dblite
+abc.history

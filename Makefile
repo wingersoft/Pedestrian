@@ -1,10 +1,10 @@
 all: *.v
-	iverilog -o pedestrian *.v
+	iverilog -o pedestrian pedestrian_tb.v pedestrian.v
 	vvp pedestrian > pedestrian.log
 	cat pedestrian.log
-	gtkwave pedestrian_tb.gtkw 2> /dev/null
+	gtkwave pedestrian_tb.gtkw
    
 clean:
-	rm -f pedestrian.vcd
-	rm -f pedistrian
-	rm -f pedistrian.log
+	exec rm -f pedestrian_tb.vcd
+	exec rm -f pedestrian
+	exec rm -f pedestrian.log
